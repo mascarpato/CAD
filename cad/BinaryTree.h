@@ -43,6 +43,10 @@ public:
 	void setOutputCap(double outCap);
 	void setOutputRes(double outRes);
 
+    void placement(const char *filename);
+
+    int maxHeight(BinaryTree *p);
+
 private:
 	unsigned int i;
 	BinaryTree *l; // left node
@@ -65,4 +69,6 @@ private:
 
 	// Private functions
 	static BinaryTree *recBuildTree(int nodeIndex);
+
+
 };

@@ -18,6 +18,9 @@ list<string>::iterator outNamesIt;
 
 BinaryTree* findNodeByName(char *name, BinaryTree *node);
 
+int area[2][2];
+int nandArea[2];
+
 Pos::Pos() {
 	this->x = -1;
 	this->y = -1;
@@ -131,12 +134,10 @@ int BinaryTree::parseAndLoadDEF(const char *filename) {
 	printf("Loading design\n");
 	if (!fscanf(inFile, "DESIGN %s ", unused)) return -2;
 
-	int area[2][2];
 	printf("Loading die area\n");
 	if (!fscanf(inFile, "DIEAREA ( %d %d ) ( %d %d ); ", &area[0][0],
 		&area[0][1], &area[1][0], &area[1][1])) return -3;
 
-	int nandArea[2];
 	printf("Loading NAND area\n");
 	if (!fscanf(inFile, "NANDAREA %d %d ; ", &nandArea[0], &nandArea[1]))
 		return -4;
@@ -401,4 +402,21 @@ void BinaryTree::setOutputCap(double outCap) {
 void BinaryTree::setOutputRes(double outRes) {
 	if (outRes == 0) this->outRes = 0;
 	else this->outRes += outRes;
+}
+
+void BinaryTree::placement(const char *filename){
+    FILE *outFile = fopen(filename, "w");
+    int width = (area[1][0]-area[0][0])/nandArea[0];
+    int length = (area[1][1]-area[0][1])/nandArea[1];
+    char matrix[width][length];
+    memset(matrix, 0, width*length*sizeof(char));
+
+
+}
+
+int maxHeight(BinaryTree *p) {
+  if (!p) return 0;
+  int left_height = maxHeight(p->getLeft());
+  int right_height = maxHeight(p->getRight());
+  return (left_height > right_height) ? left_height + 1 : right_height + 1;
 }
