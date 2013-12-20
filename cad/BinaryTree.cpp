@@ -18,7 +18,7 @@ list<string>::iterator outNamesIt;
 
 int matrixNumRows;
 int matrixNumCols;
-char matrix;
+char **matrix;
 
 BinaryTree* findNodeByName(char *name, BinaryTree *node);
 
@@ -408,26 +408,21 @@ void BinaryTree::setOutputRes(double outRes) {
 	else this->outRes += outRes;
 }
 
-Pos positionAvailable(Pos position) {
-	// First, check if the position is actually valid
-	if (matrix[position.x][position.y] == 0) {
-		return position;
-	}
-
+Pos findPosition(Pos position) {
 	// 'i' is the X coordinate, 'j' is the Y coordinate
-	int i = 0, j = 0, intCoords[2];
-	Pos relative;
+	int i = 0, j = 0;
+	int relative[2];
 	// It is not, let's check neighbouring locations
 	// Round the values
-	relative.x = position.x / nandArea[0];
-	relative.y = position.y / nandArea[1];
-	intCoords[0] = (int)relative.x;
-	intCoords[1] = (int)relative.y;
-	if (relative.x - intCoords[0] > 0.5) relative.x = intCoords[0] + 1;
-	else relative.x = intCoords[0];
+	relative[0] = (int)position.x / nandArea[0];
+	relative[1] = (int)position.y / nandArea[1];
 
-	if (relative.y - intCoords[1] > 0.5) relative.y = intCoords[1] + 1;
-	else relative.y = intCoords[1];
+	if (position.x / nandArea[0] - relative[0] > 0.5) {
+		relative[0] = relative[0] + 1;
+	}
+	if (position.y / nandArea[1] - relative[1] > 0.5) {
+		relative[1] = relative[1] + 1;
+	}
 
 	// Indicates whether or not every single position in the current position
 	//	up to the output pins are fulfilled
@@ -435,17 +430,17 @@ Pos positionAvailable(Pos position) {
 
 	// Values are now rounded. Check if they're available in the matrix
 	while(true) {
-		if (relative.y + j < matrixNumRows || relative.y - j > 0) {
-			if (relative.y + j < matrixNumRows) {
-				if (matrix[relative.x + i][relative.y + j] == 0) {
-					matrix[relative.x + i][relative.y + j] = 1;
-					return Pos(relative.x + i, relative.y + j);
+		if (relative[1] + j < matrixNumRows || relative[1] - j > 0) {
+			if (relative[1] + j < matrixNumRows) {
+				if (matrix[relative[0] + i][relative[1] + j] == 0) {
+					matrix[relative[0] + i][relative[1] + j] = 1;
+					return Pos(relative[0] + i, relative[1] + j);
 				}
 			}
-			if (relative.y - j > 0) {
-				if (matrix[relative.x + i][relative.y - j] == 0) {
-					matrix[relative.x + i][relative.y - j] = 1;
-					return Pos(relative.x + i, relative.y - j);
+			if (relative[1] - j > 0) {
+				if (matrix[relative[0] + i][relative[1] - j] == 0) {
+					matrix[relative[0] + i][relative[1] - j] = 1;
+					return Pos(relative[0] + i, relative[1] - j);
 				}
 			}
 		} else {
@@ -463,32 +458,6 @@ Pos positionAvailable(Pos position) {
 			}
 		}
 	}
-
-
-	/*Pos posFinal;
-	int i = 0; int negI = 1;
-	while(1){
-		if ((position.x + i >= 0) && (position.x + i < matrixNumCols)){
-			if (matrix[position.x + i][position.y + j] == 0) {
-				diffY *= -1;
-				if(!sideY){
-					diffY++;
-
-					if(diffY + position.y == )
-				}
-				sideY = not sideY;
-
-
-			}
-			else{
-				matrix[position.x + diffX][position.y + diffY] = 1;
-				posFinal.x = position.x + diffX;
-				posFinal.y = position.y + diffY;
-				okay = true;
-			}
-		}
-	}
-	return posFinal;*/
 }
 
 void BinaryTree::placement(const char *filename){
@@ -499,12 +468,13 @@ void BinaryTree::placement(const char *filename){
 	matrixNumCols = (area[1][0]-area[0][0])/nandArea[0];
 	matrixNumRows = (area[1][1]-area[0][1])/nandArea[1];
 
-	char **matrix = new char[matrixNumRows][matrixNumCols];
+	matrix = new char*[matrixNumRows];
+	for (int i = 0; i < matrixNumRows; i++) matrix[i] = new char[matrixNumCols];
 
 	// The positions we have are the output pins, let's put them first
 	list<BinaryTree*>::iterator outNodesIt;
 	for (outNodesIt = outNodes.begin(); outNodesIt != outNodes.end(); outNodesIt++) {
-
+		(*outNodesIt)->setPosition(findPosition((*outNodesIt)->getPosition()));
 	}
 }
 
