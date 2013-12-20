@@ -315,9 +315,10 @@ BinaryTree* BinaryTree::recBuildTree(int nodeIndex) {
 			invInput = recBuildTree(leftIndex - 1);
 			newNode->r->setInverterInput(invInput);
 			existingNodes.push_front(newNode->r);
+		} else {
+			newNode->r = recBuildTree(rightIndex);
+			existingNodes.push_front(newNode->r);
 		}
-		newNode->r = recBuildTree(rightIndex);
-		existingNodes.push_front(newNode->r);
 	}
 
 	return newNode;
