@@ -1,0 +1,42 @@
+resistance_unit ohms
+capacitance_unit ff
+distance_unit microns
+
+cell ( NAND2 ) {
+	width 10
+	height 20
+	input_capacitance 1.664199
+	input_resistance 633.165
+}
+
+cell ( INV ) {
+	width 6
+	height 20
+	input_capacitance 1.664199
+	input_resistance 633.165
+}
+
+cell ( AND2 ) {
+	width 16
+	height 20
+	input_capacitance 1.664199
+	input_resistance 633.165
+}
+
+LAYER MET1
+	WIDTH 0.230
+	RESISTANCE RPERSQ 0.45
+	CAPACITANCE CPERSQ 0.0702
+END MET1
+
+LAYER MET2
+	WIDTH 0.280
+	RESISTANCE RPERSQ 0.25
+	CAPACITANCE CPERSQ 0.040896
+END MET2
+
+LAYER MET3
+	WIDTH 0.280
+	RESISTANCE RPERSQ 0.25
+	CAPACITANCE CPERSQ 0.040896
+END MET3

@@ -1,0 +1,4 @@
+create_clock -period 0.03 -name clk
+
+set_max_delay  0.025 -to po1 
+set_max_delay  0.02 -to po0 
