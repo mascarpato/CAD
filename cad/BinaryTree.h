@@ -13,8 +13,7 @@ public:
 class BinaryTree {
 public:
 	BinaryTree(unsigned int index = 0, BinaryTree *left = NULL,
-			   bool inv_left = false, BinaryTree *right = NULL,
-			   bool inv_right = false);
+			   BinaryTree *right = NULL);
 	~BinaryTree();
 
 	static std::list<BinaryTree*> parseAndLoadAAG(const char *filename);
@@ -37,6 +36,8 @@ public:
 	Pos getPosition();
 	void setPosition(Pos pos);
 
+	void setInverterInput(BinaryTree *node);
+
 	void getInputRes(double *dest);
 	void getInputCap(double *dest);
 	void setOutputCap(double outCap);
@@ -45,9 +46,7 @@ public:
 private:
 	unsigned int i;
 	BinaryTree *l; // left node
-	bool il; // invert left node?
 	BinaryTree *r; // right node
-	bool ir; // invert right node?
 
 	// Interpreted values
 	// These values are interpreted from SPECS file

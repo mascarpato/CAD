@@ -28,13 +28,10 @@ Pos::Pos(int x, int y) {
 	this->y = y;
 }
 
-BinaryTree::BinaryTree(unsigned int index, BinaryTree *left, bool inv_left,
-					   BinaryTree *right, bool inv_right) {
+BinaryTree::BinaryTree(unsigned int index, BinaryTree *left, BinaryTree *right) {
 	this->i = index;
 	this->l = left;
-	this->il = inv_left;
 	this->r = right;
-	this->ir = inv_right;
 
 	this->inCap = new double[2];
 	this->inRes = new double[2];
@@ -189,7 +186,8 @@ int BinaryTree::parseAndLoadDEF(const char *filename) {
 }
 
 int BinaryTree::parseAndLoadSPECS(const char *filename) {
-	printf("LOADING SPECS FILE\n");
+	printf(
+"LOADING SPECS FILE\n");
 	printf("Loading base options\n");
 	FILE *inFile = fopen(filename, "r");
 	if (!inFile) return -1;
@@ -245,9 +243,21 @@ int BinaryTree::parseAndLoadSPECS(const char *filename) {
 }
 
 void calculateResistances(BinaryTree *node, double outRes) {
+	// First, deal with input nodes
 	if ((node->getLeft() == NULL) && (node->getRight()) == NULL) {
-		node->
+		node->setOutputRes(outRes);
+		return;
 	}
+	// Now, deal with nodes that have children
+	node->setOutputRes(outRes);
+
+	double *inRes = new double[2];
+	node->getInputRes(inRes);
+
+	if (node->getLeft()) calculateResistances(node->getLeft(), inRes[0]);
+	if (node->getRight()) calculateResistances(node->getRight(), inRes[1]);
+
+	delete inRes;
 }
 
 BinaryTree* BinaryTree::recBuildTree(int nodeIndex) {
@@ -273,17 +283,11 @@ BinaryTree* BinaryTree::recBuildTree(int nodeIndex) {
 
 	// Check if child nodes exist
 	int i;
-
+	bool invLeft, invRight;
 	for (i = 0; andConnections[i][0] != nodeIndex; i++);
 	unsigned int leftIndex = andConnections[i][1], rightIndex = andConnections[i][2];
-	if (andConnections[i][1] % 2) {
-		newNode->il = true;
-		leftIndex -= 1;
-	}
-	if (andConnections[i][2] % 2) {
-		newNode->ir = true;
-		rightIndex -= 1;
-	}
+	if (leftIndex % 2) invLeft = true;
+	if (rightIndex % 2) invRight = true;
 
 	if (!existingNodes.empty()) {
 		std::list<BinaryTree*>::iterator it;
@@ -293,12 +297,25 @@ BinaryTree* BinaryTree::recBuildTree(int nodeIndex) {
 			if (newNode->l && newNode->r) break;
 		}
 	}
-
+	BinaryTree *invInput;
 	if (!newNode->l) {
-		newNode->l = recBuildTree(leftIndex);
-		existingNodes.push_front(newNode->l);
+		if (invLeft) {
+			newNode->l = new BinaryTree(leftIndex);
+			invInput = recBuildTree(leftIndex - 1);
+			newNode->l->setInverterInput(invInput);
+			existingNodes.push_front(newNode->l);
+		} else {
+			newNode->l = recBuildTree(leftIndex);
+			existingNodes.push_front(newNode->l);
+		}
 	}
 	if (!newNode->r) {
+		if (!invRight) {
+			newNode->r = new BinaryTree(leftIndex);
+			invInput = recBuildTree(leftIndex - 1);
+			newNode->r->setInverterInput(invInput);
+			existingNodes.push_front(newNode->r);
+		}
 		newNode->r = recBuildTree(rightIndex);
 		existingNodes.push_front(newNode->r);
 	}
@@ -359,6 +376,10 @@ Pos BinaryTree::getPosition() {
 
 void BinaryTree::setPosition(Pos pos) {
 	this->pos = pos;
+}
+
+void BinaryTree::setInverterInput(BinaryTree *node) {
+	this->l = node;
 }
 
 void BinaryTree::getInputCap(double *dest) {
