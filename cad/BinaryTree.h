@@ -5,8 +5,8 @@
 
 class Pos {
 public:
-	int x, y;
-	Pos (int x, int y);
+	float x, y;
+	Pos (float x, float y);
 	Pos ();
 };
 
@@ -43,9 +43,9 @@ public:
 	void setOutputCap(double outCap);
 	void setOutputRes(double outRes);
 
-    void placement(const char *filename);
+	void placement(const char *filename);
 
-    int maxHeight(BinaryTree *p);
+	int maxHeight(BinaryTree *p);
 
 private:
 	unsigned int i;
@@ -66,6 +66,9 @@ private:
 	std::string direction;
 	char orientation;
 	Pos pos;
+
+	// Save the parent's position
+	std::list<Pos> parentsPosition;
 
 	// Private functions
 	static BinaryTree *recBuildTree(int nodeIndex);

@@ -16,6 +16,10 @@ list<string>::iterator inNamesIt;
 list<string> outNames;
 list<string>::iterator outNamesIt;
 
+int matrixNumRows;
+int matrixNumCols;
+char matrix;
+
 BinaryTree* findNodeByName(char *name, BinaryTree *node);
 
 int area[2][2];
@@ -26,7 +30,7 @@ Pos::Pos() {
 	this->y = -1;
 }
 
-Pos::Pos(int x, int y) {
+Pos::Pos(float x, float y) {
 	this->x = x;
 	this->y = y;
 }
@@ -404,14 +408,104 @@ void BinaryTree::setOutputRes(double outRes) {
 	else this->outRes += outRes;
 }
 
+Pos positionAvailable(Pos position) {
+	// First, check if the position is actually valid
+	if (matrix[position.x][position.y] == 0) {
+		return position;
+	}
+
+	// 'i' is the X coordinate, 'j' is the Y coordinate
+	int i = 0, j = 0, intCoords[2];
+	Pos relative;
+	// It is not, let's check neighbouring locations
+	// Round the values
+	relative.x = position.x / nandArea[0];
+	relative.y = position.y / nandArea[1];
+	intCoords[0] = (int)relative.x;
+	intCoords[1] = (int)relative.y;
+	if (relative.x - intCoords[0] > 0.5) relative.x = intCoords[0] + 1;
+	else relative.x = intCoords[0];
+
+	if (relative.y - intCoords[1] > 0.5) relative.y = intCoords[1] + 1;
+	else relative.y = intCoords[1];
+
+	// Indicates whether or not every single position in the current position
+	//	up to the output pins are fulfilled
+	bool posAheadFull = false;
+
+	// Values are now rounded. Check if they're available in the matrix
+	while(true) {
+		if (relative.y + j < matrixNumRows || relative.y - j > 0) {
+			if (relative.y + j < matrixNumRows) {
+				if (matrix[relative.x + i][relative.y + j] == 0) {
+					matrix[relative.x + i][relative.y + j] = 1;
+					return Pos(relative.x + i, relative.y + j);
+				}
+			}
+			if (relative.y - j > 0) {
+				if (matrix[relative.x + i][relative.y - j] == 0) {
+					matrix[relative.x + i][relative.y - j] = 1;
+					return Pos(relative.x + i, relative.y - j);
+				}
+			}
+		} else {
+			// Greater x means closer to the output pins
+			if (posAheadFull) {
+				i--;
+				if (i < 0) return Pos(-1,-1);
+			}
+			else {
+				i++;
+				if (i > matrixNumCols) {
+					i = -1;
+					posAheadFull = true;
+				}
+			}
+		}
+	}
+
+
+	/*Pos posFinal;
+	int i = 0; int negI = 1;
+	while(1){
+		if ((position.x + i >= 0) && (position.x + i < matrixNumCols)){
+			if (matrix[position.x + i][position.y + j] == 0) {
+				diffY *= -1;
+				if(!sideY){
+					diffY++;
+
+					if(diffY + position.y == )
+				}
+				sideY = not sideY;
+
+
+			}
+			else{
+				matrix[position.x + diffX][position.y + diffY] = 1;
+				posFinal.x = position.x + diffX;
+				posFinal.y = position.y + diffY;
+				okay = true;
+			}
+		}
+	}
+	return posFinal;*/
+}
+
 void BinaryTree::placement(const char *filename){
-    FILE *outFile = fopen(filename, "w");
-    int width = (area[1][0]-area[0][0])/nandArea[0];
-    int length = (area[1][1]-area[0][1])/nandArea[1];
-    char matrix[width][length];
-    memset(matrix, 0, width*length*sizeof(char));
+	FILE *outFile = fopen(filename, "w");
 
+	// First, we determine the "logic" map of the matrix. That is the number of
+	//	cells we can fit in the matrix
+	matrixNumCols = (area[1][0]-area[0][0])/nandArea[0];
+	matrixNumRows = (area[1][1]-area[0][1])/nandArea[1];
 
+	char **matrix = new char[matrixNumRows][matrixNumCols];
+
+	// The positions we have are the output pins, let's put them first
+	list<BinaryTree*>::iterator outNodesIt;
+	for (outNodesIt = outNodes.begin(); outNodesIt != outNodes.end(); outNodesIt++) {
+
+	}
 }
 
 int maxHeight(BinaryTree *p) {
